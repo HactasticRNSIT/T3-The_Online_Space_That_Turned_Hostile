@@ -1,0 +1,10 @@
+streamlit
+detoxify
+torch
+pandas
+plotly
+networkx
+matplotlib
+numpy
+pymongo
+python-dotenv
