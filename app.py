@@ -1,4 +1,5 @@
 import streamlit as st
+from modules.toxicity import analyze_text
 
 st.set_page_config(
     page_title="AI Harassment Detection System",
@@ -9,4 +10,8 @@ st.title("AI Harassment Detection System")
 
 st.sidebar.title("Moderator Panel")
 
-st.write("System initialized successfully.")
+message = st.text_area("Enter Message")
+
+if st.button("Analyze"):
+    result = analyze_text(message)
+    st.write(result)

@@ -8,3 +8,7 @@ matplotlib
 numpy
 pymongo
 python-dotenv
+easyocr
+opencv-python 
+mss
+pillow
