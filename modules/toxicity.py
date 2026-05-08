@@ -62,12 +62,46 @@ class ToxicityEngine:
         }
 
 
-if __name__ == "__main__":
+# -----------------------------------
+# GLOBAL ENGINE INSTANCE
+# -----------------------------------
 
-    engine = ToxicityEngine()
+engine = ToxicityEngine()
+
+
+# -----------------------------------
+# COMPATIBILITY FUNCTION FOR app.py
+# -----------------------------------
+
+def analyze_text(text):
+
+    result = engine.analyze_text(text)
+
+    if not result["success"]:
+
+        return {
+            "toxicity": 0,
+            "insult": 0,
+            "threat": 0
+        }
+
+    categories = result["categories"]
+
+    return {
+        "toxicity": categories.get("toxicity", 0),
+        "insult": categories.get("insult", 0),
+        "threat": categories.get("threat", 0)
+    }
+
+
+# -----------------------------------
+# TESTING
+# -----------------------------------
+
+if __name__ == "__main__":
 
     sample = "You are useless and disgusting"
 
-    result = engine.analyze_text(sample)
+    result = analyze_text(sample)
 
     print(result)
