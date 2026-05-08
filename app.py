@@ -1,245 +1,98 @@
 import streamlit as st
-import plotly.express as px
-import pandas as pd
-
 from modules.toxicity import analyze_text
-from modules.scoring import calculate_severity
-
-# -----------------------------------
-# TEMPORARY PLACEHOLDERS
-# Device 2 will replace these later
-# -----------------------------------
-
-def capture_screen():
-    return "data/sample.png"
-
-
-def extract_text(path):
-    return "You are pathetic and useless"
-
-
-# -----------------------------------
-# PAGE CONFIG
-# -----------------------------------
 
 st.set_page_config(
     page_title="AI Harassment Detection System",
     layout="wide"
 )
 
-# -----------------------------------
-# HEADER
-# -----------------------------------
-
 st.title("AI Harassment Detection System")
 
-st.markdown(
-    """
-    ### Real-Time AI Moderation Dashboard
+st.sidebar.title("Moderator Panel")
 
-    This system monitors digital conversations,
-    detects hostile interactions,
-    analyzes toxicity levels,
-    and alerts moderators in real time.
-    """
-)
+message = st.text_area("Enter Message")
 
-# -----------------------------------
-# SIDEBAR
-# -----------------------------------
-
-st.sidebar.title("Moderator Dashboard")
-
-st.sidebar.success("Monitoring System Active")
-
-st.sidebar.metric(
-    "Monitoring Status",
-    "LIVE"
-)
-
-st.sidebar.metric(
-    "Messages Scanned",
-    128
-)
-
-st.sidebar.metric(
-    "High Risk Alerts",
-    5
-)
-
-st.sidebar.info(
-    "Real-time toxicity monitoring system"
-)
-
-# -----------------------------------
-# MAIN DASHBOARD METRICS
-# -----------------------------------
-
-col1, col2, col3 = st.columns(3)
-
-col1.metric(
-    "Messages Processed",
-    128
-)
-
-col2.metric(
-    "Critical Alerts",
-    5
-)
-
-col3.metric(
-    "Threat Level",
-    "HIGH"
-)
-
-st.divider()
-
-# -----------------------------------
-# MONITORING BUTTON
-# -----------------------------------
-
-if st.button("Start Monitoring"):
-
-    # Capture screen
-    image_path = capture_screen()
-
-    # Extract text
-    extracted_text = extract_text(image_path)
-
-    # -----------------------------------
-    # DETECTED TEXT
-    # -----------------------------------
-
-    st.subheader("Detected Text")
-
-    st.write(extracted_text)
-
-    st.divider()
-
-    # -----------------------------------
-    # TOXICITY ANALYSIS
-    # -----------------------------------
-
-    result = analyze_text(extracted_text)
-
-    toxicity_score = result['toxicity']
-
-    severity = calculate_severity(toxicity_score)
-
-    st.subheader("Toxicity Analysis")
-
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric(
-        "Toxicity",
-        round(result['toxicity'], 2)
-    )
-
-    col2.metric(
-        "Insult",
-        round(result['insult'], 2)
-    )
-
-    col3.metric(
-        "Threat",
-        round(result['threat'], 2)
-    )
-
-    # -----------------------------------
-    # PROGRESS BAR
-    # -----------------------------------
-
-    st.progress(float(toxicity_score))
-
-    # -----------------------------------
-    # SEVERITY SCORE
-    # -----------------------------------
-
-    st.metric(
-        "Severity Score",
-        severity
-    )
-
-    # -----------------------------------
-    # THREAT STATUS
-    # -----------------------------------
-
-    if severity > 0.7:
-
-        st.error(
-            "🔴 HIGH RISK TOXIC CONTENT DETECTED"
-        )
-
-    elif severity > 0.4:
-
-        st.warning(
-            "🟠 MODERATE TOXICITY DETECTED"
-        )
-
-    else:
-
-        st.success(
-            "🟢 LOW RISK CONTENT"
-        )
-
-    st.divider()
-
-    # -----------------------------------
-    # ANALYTICS CHART
-    # -----------------------------------
-
-    st.subheader("Live Moderation Analytics")
-
-    df = pd.DataFrame({
-        "Category": [
-            "Toxicity",
-            "Insult",
-            "Threat"
-        ],
-        "Score": [
-            result['toxicity'],
-            result['insult'],
-            result['threat']
-        ]
-    })
-
-    fig = px.bar(
-        df,
-        x="Category",
-        y="Score",
-        title="Toxicity Breakdown"
-    )
-
-    st.plotly_chart(fig)
-
-    st.divider()
-
-    # -----------------------------------
-    # ALERT FEED
-    # -----------------------------------
-
-    st.subheader("Recent Moderation Alerts")
-
-    st.write("⚠ Toxic language detected")
-    st.write("⚠ Harassment pattern identified")
-    st.write("⚠ Negative sentiment escalation")
-
-    st.divider()
-
-    # -----------------------------------
-    # RAW OUTPUT
-    # -----------------------------------
-
-    st.subheader("Full Analysis Output")
-
+if st.button("Analyze"):
+    result = analyze_text(message)
     st.write(result)
 
-# -----------------------------------
-# FOOTER
-# -----------------------------------
+import streamlit as st
+from modules.alerts import classify_alert, get_alert_color, get_alert_emoji
+from modules.database import save_moderation_event, get_recent_events
 
-st.divider()
-
-st.caption(
-    "AI Harassment Detection System • Hackathon Prototype"
+st.set_page_config(
+    page_title="AI Harassment Detection System",
+    layout="wide",
+    page_icon="🛡️"
 )
+
+# --- Sidebar ---
+st.sidebar.title("🛡️ Moderator Panel")
+st.sidebar.markdown("---")
+st.sidebar.markdown("**Alert Level Guide**")
+st.sidebar.markdown("🟢 **Low** — score < 0.4")
+st.sidebar.markdown("🟡 **Moderate** — score 0.4–0.7")
+st.sidebar.markdown("🔴 **High Risk** — score > 0.7")
+
+# --- Header ---
+st.title("🛡️ AI Harassment Detection System")
+st.markdown("Real-time toxic content detection and moderation dashboard.")
+st.markdown("---")
+
+# --- Input Section ---
+st.subheader("📝 Analyze a Message")
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    user_id = st.text_input("User ID", placeholder="e.g. user_42")
+    message = st.text_area("Message", placeholder="Enter message to analyze...")
+
+with col2:
+    st.markdown("<br>", unsafe_allow_html=True)
+    # Simulated score input (Device 3 will replace this with real Detoxify score)
+    toxicity_score = st.slider("Toxicity Score (from Device 3)", 0.0, 1.0, 0.5, step=0.01)
+
+if st.button("🔍 Analyze & Save"):
+    if user_id and message:
+        level = classify_alert(toxicity_score)
+        emoji = get_alert_emoji(level)
+        color = get_alert_color(level)
+
+        save_moderation_event(user_id, message, toxicity_score, level)
+
+        st.success(f"Event saved to MongoDB!")
+        st.markdown(
+            f"<div style='padding:16px; border-radius:8px; background-color:{color}22; "
+            f"border-left: 5px solid {color};'>"
+            f"<b>{emoji} Alert Level: {level}</b><br>"
+            f"Score: <b>{toxicity_score:.2f}</b><br>"
+            f"User: <b>{user_id}</b>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.warning("Please fill in both User ID and Message.")
+
+st.markdown("---")
+
+# --- Recent Events Table ---
+st.subheader("📋 Recent Moderation Events")
+
+events = get_recent_events(20)
+if events:
+    for e in events:
+        level = e.get("alert_level", "Low")
+        emoji = get_alert_emoji(level)
+        color = get_alert_color(level)
+        st.markdown(
+            f"<div style='margin-bottom:8px; padding:10px; border-radius:6px; "
+            f"background-color:{color}18; border-left:4px solid {color};'>"
+            f"{emoji} <b>{level}</b> | Score: <b>{e['toxicity_score']:.2f}</b> | "
+            f"User: <code>{e['user_id']}</code> | "
+            f"<i>{str(e['timestamp'])[:19]}</i><br>"
+            f"<span style='color:#ccc;'>{e['message'][:100]}</span>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+else:
+    st.info("No moderation events yet. Analyze a message to get started.")
