@@ -2,7 +2,12 @@
 from pymongo import MongoClient
 from datetime import datetime
 import os
+from dotenv import load_dotenv
 
+# Load environment variables from the .env file
+load_dotenv()
+
+# Get the URI from the environment, fallback to localhost if not found
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 
 def get_db():
