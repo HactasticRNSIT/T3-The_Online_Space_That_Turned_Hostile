@@ -9,8 +9,8 @@ class SeverityScorer:
     def calculate_severity(
         self,
         toxicity_score,
-        frequency_score=0,
-        network_pressure=0
+        frequency_score=1,
+        network_pressure=1
     ):
 
         severity_score = (
@@ -26,7 +26,7 @@ class SeverityScorer:
         )
 
         return {
-            "severity_score": round(severity_score, 3),
+            "severity_score": round(severity_score, 2),
             "severity_label": severity_label
         }
 
